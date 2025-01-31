@@ -86,6 +86,13 @@ func (p *Queue[T, V]) PopPriority(priority int) (*graph.Petri[T, V], bool) {
 		return nil, false
 	}
 
+	if len(st.Elements) == 0 {
+		delete(p.GrQu, priority)
+		if priority == p.maxPriority {
+			p.maxPriority = calculateMax(p.GrQu)
+		}
+	}
+
 	return obj, true
 }
 

@@ -13,7 +13,7 @@ type Storage[T any, V comparable, U comparable] interface {
 type Builder[T any, V comparable, U comparable] struct {
 	ID      U
 	Storage Storage[T, V, U]
-	prQue   *priority.Queue[T, V]
+	petriQ  *priority.Queue[T, V]
 }
 
 func NewBuilder[T any, V comparable, U comparable](id U, storage Storage[T, V, U]) *Builder[T, V, U] {
@@ -30,14 +30,14 @@ func (b *Builder[T, V, U]) LoadState() error {
 	}
 
 	if stored == nil {
-		b.prQue = priority.NewPriorityQueue[T, V]()
+		b.petriQ = priority.NewPriorityQueue[T, V]()
 	} else {
-		b.prQue = stored
+		b.petriQ = stored
 	}
 
 	return nil
 }
 
 func (b *Builder[T, V, U]) Build(zeroSignal T) *PetriQueue[T, V] {
-	return NewPetriQueue(b.prQue, zeroSignal)
+	return NewPetriQueue(b.petriQ, zeroSignal)
 }

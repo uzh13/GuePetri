@@ -8,19 +8,23 @@ type PlaceHandler[T any, V comparable] interface {
 
 type Place[T any, V comparable] struct {
 	ID      V `json:"id,omitempty"`
+	Handler PlaceHandler[T, V]
 	to      map[V]struct{}
-	handler PlaceHandler[T, V]
 }
 
-func NewNode[T any, V comparable](id V, handler PlaceHandler[T, V]) *Place[T, V] {
+func NewPlace[T any, V comparable](id V, handler PlaceHandler[T, V]) *Place[T, V] {
 	return &Place[T, V]{
 		ID:      id,
+		Handler: handler,
 		to:      make(map[V]struct{}),
-		handler: handler,
 	}
 }
 
 func (p *Place[T, V]) AddTransition(s *Transition[T, V]) *Place[T, V] {
+	if p.to == nil {
+		p.to = make(map[V]struct{})
+	}
+
 	p.to[s.ID] = struct{}{}
 
 	return p
