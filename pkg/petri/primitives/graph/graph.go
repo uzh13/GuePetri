@@ -17,6 +17,13 @@ type Petri[T any, V comparable] struct {
 	Handler PetriHandler
 }
 
+func NewPetri[T any, V comparable](id V, handler PetriHandler) *Petri[T, V] {
+	return &Petri[T, V]{
+		ID:      id,
+		Handler: handler,
+	}
+}
+
 func (g *Petri[T, V]) SetStartPlace(n *Place[T, V]) *Petri[T, V] {
 	g.Start = n
 

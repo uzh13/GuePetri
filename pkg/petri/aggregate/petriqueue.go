@@ -20,12 +20,30 @@ func NewPetriQueue[T any, V comparable](q *priority.Queue[T, V], zero T) *PetriQ
 	}
 }
 
-func (p *PetriQueue[T, V]) AddGraph(priority int, graph *graph.Petri[T, V]) {
+func (p *PetriQueue[T, V]) AddGraph(level int, graph *graph.Petri[T, V]) error {
 	if p.queue == nil {
 		p.queue = priority.NewPriorityQueue[T, V]()
 	}
 
-	p.queue.Push(priority, graph)
+	size := p.queue.Len()
+	currentLevel := p.queue.GetMaxPriority()
+
+	p.queue.Push(level, graph)
+
+	if graph.Current != nil {
+		return nil
+	}
+
+	if size != 0 && level <= currentLevel {
+		return nil
+	}
+
+	err := graph.StartGraph()
+	if err != nil {
+		return fmt.Errorf("add graph and start: %w", err)
+	}
+
+	return nil
 }
 
 func (p *PetriQueue[T, V]) GetQueue() *priority.Queue[T, V] {
@@ -37,6 +55,10 @@ func (p *PetriQueue[T, V]) Act(signal T) error {
 		p.queue = priority.NewPriorityQueue[T, V]()
 	}
 
+	if len(p.queue.GrQu) == 0 {
+		return nil
+	}
+
 	current, priorityLevel, ok := p.queue.Peek()
 	if !ok {
 		return errors.New("unable to detect peek")
@@ -44,7 +66,7 @@ func (p *PetriQueue[T, V]) Act(signal T) error {
 
 	err := current.Act(signal)
 	if err != nil {
-		return fmt.Errorf("unable to act priority %v, graph %s, signal %v: %w", priorityLevel, current, signal, err)
+		return fmt.Errorf("unable to act priority %v, graph %v, signal %v: %w", priorityLevel, current, signal, err)
 	}
 
 	if !current.IsOnFinish() {
@@ -53,7 +75,7 @@ func (p *PetriQueue[T, V]) Act(signal T) error {
 
 	err = current.FinishGraph()
 	if err != nil {
-		return fmt.Errorf("unable to finish graph %s, priority %v, signal %v: %w", current, priorityLevel, signal, err)
+		return fmt.Errorf("unable to finish graph %v, priority %v, signal %v: %w", current, priorityLevel, signal, err)
 	}
 
 	graphToRemove, ok := p.queue.PopPriority(priorityLevel)

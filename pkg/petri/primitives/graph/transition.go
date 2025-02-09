@@ -27,3 +27,7 @@ func (t *Transition[T, V]) AddTo(n *Place[T, V]) *Transition[T, V] {
 
 	return t
 }
+
+func (p *Transition[T, V]) GetTo() map[V]struct{} {
+	return p.to
+}

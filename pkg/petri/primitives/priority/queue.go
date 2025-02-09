@@ -100,6 +100,14 @@ func (p *Queue[T, V]) Pop() (*graph.Petri[T, V], bool) {
 	return p.PopPriority(p.maxPriority)
 }
 
+func (p *Queue[T, V]) GetMaxPriority() int {
+	return p.maxPriority
+}
+
+func (p *Queue[T, V]) Len() int {
+	return len(p.GrQu)
+}
+
 func calculateMax[T any](m map[int]*queue.Queue[T]) int {
 	if len(m) == 0 {
 		return 0

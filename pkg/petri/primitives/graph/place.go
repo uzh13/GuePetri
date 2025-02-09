@@ -1,5 +1,7 @@
 package graph
 
+// T - signal, V - id
+
 type PlaceHandler[T any, V comparable] interface {
 	HandleIn(*Place[T, V]) error
 	HandleOut(*Place[T, V]) error
@@ -28,4 +30,8 @@ func (p *Place[T, V]) AddTransition(s *Transition[T, V]) *Place[T, V] {
 	p.to[s.ID] = struct{}{}
 
 	return p
+}
+
+func (p *Place[T, V]) GetTo() map[V]struct{} {
+	return p.to
 }
